@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Секретный сюрприз 🎁</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Доступ запрещён -->
+<div id="denied" class="center hidden">
+    <h1>⛔ Доступ закрыт</h1>
+    <p>Эта страница предназначена не для всех 😉</p>
+</div>
+
+<!-- Основное приложение -->
+<div id="app" class="center hidden">
+    <h1>🔐 Расшифруй сообщение</h1>
+    <p class="hint">Используй азбуку Морзе, чтобы получить поздравление</p>
+
+    <div class="morse">
+        .... .- .--. .--. -.--  -... .. .-. - .... -.. .- -.--
+    </div>
+
+    <button onclick="playMorse()">▶ Воспроизвести Морзе</button>
+
+    <input id="answer" type="text" placeholder="Введите ответ">
+    <button onclick="checkAnswer()">Проверить</button>
+
+    <p id="result"></p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
