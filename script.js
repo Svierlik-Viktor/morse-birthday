@@ -1,7 +1,7 @@
 // ================= НАСТРОЙКИ =================
 const SECRET_KEY = "BD2026";               // 🔑 ключ в URL
 const CORRECT_ANSWER = "HAPPY BIRTHDAY";   // ✅ правильный ответ
-const LIFE_TIME = 3 * 60 * 1000;            // ⏳ 3 минуты
+const LIFE_TIME = 10 * 60 * 1000; // ⏳ 10 минут
 // ============================================
 
 // Проверка ключа
@@ -24,12 +24,14 @@ if (key === SECRET_KEY) {
 function checkAnswer() {
     const input = document.getElementById("answer").value.trim().toUpperCase();
     const result = document.getElementById("result");
+    const toPuzzleBtn = document.getElementById("toPuzzleBtn");
 
     if (input === CORRECT_ANSWER) {
-        result.innerHTML = `
-      🎉🎂 С ДНЁМ РОЖДЕНИЯ! 🎂🎉<br>
-      Пусть мечты сбываются, а счастье всегда будет рядом 💙
-    `;
+        // 🔐 сохраняем факт прохождения Морзе
+        localStorage.setItem("morsePassed", "true");
+
+        result.innerHTML = "✅ Верно! Ты справился с первым испытанием.";
+        toPuzzleBtn.style.display = "block";
     } else {
         result.innerHTML = "❌ Неверно. Подсказка: это поздравление 😉";
     }
@@ -73,4 +75,9 @@ function playMorse() {
         osc.start(start);
         osc.stop(start + duration);
     }
+
+    document.getElementById("toPuzzleBtn").addEventListener("click", () => {
+        window.location.href = "puzzle/index.html";
+    });
+
 }

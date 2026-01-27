@@ -1,3 +1,13 @@
+// 🔐 Проверка прохождения Морзе
+if (localStorage.getItem("morsePassed") !== "true") {
+    document.body.innerHTML = `
+        <h1 style="text-align:center;margin-top:40vh;">
+            ⛔ Сначала пройди предыдущее испытание
+        </h1>
+    `;
+    throw new Error("Access denied");
+}
+
 const puzzle = document.getElementById("puzzle");
 const result = document.getElementById("result");
 const timerEl = document.getElementById("timer");
