@@ -1,0 +1,28 @@
+body {
+    background: #0f1220;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#puzzle {
+    width: 600px;
+    height: 400px;
+    margin: 20px auto;
+    display: flex;
+    flex-wrap: wrap;
+    border: 3px solid #6a5acd;
+}
+
+.piece {
+    width: 150px;
+    height: 100px;
+    background-image: url("..jpg");
+    background-size: 600px 400px;
+    cursor: grab;
+}
+
+#result {
+    font-size: 22px;
+    margin-top: 20px;
+}
