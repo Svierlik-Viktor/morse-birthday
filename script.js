@@ -73,8 +73,13 @@ function playMorse() {
         osc.start(start);
         osc.stop(start + duration);
     }
-    document.getElementById("toPuzzleBtn").addEventListener("click", () => {
-        window.location.href = "puzzle/index.html";
-    });
-
 }
+document.addEventListener("DOMContentLoaded", () => {
+    const toPuzzleBtn = document.getElementById("toPuzzleBtn");
+
+    if (toPuzzleBtn) {
+        toPuzzleBtn.addEventListener("click", () => {
+            window.location.href = "puzzle/index.html";
+        });
+    }
+});
