@@ -17,9 +17,11 @@ body {
 .piece {
     width: 150px;
     height: 100px;
-    background-image: url("..jpg");
+    background-image: url("image.jpg");
     background-size: 600px 400px;
     cursor: grab;
+    border: 1px solid #222;
+    box-sizing: border-box;
 }
 
 #result {
