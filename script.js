@@ -20,20 +20,18 @@ if (key === SECRET_KEY) {
     document.getElementById("denied").classList.remove("hidden");
 }
 
-// Проверка ответа
 function checkAnswer() {
     const input = document.getElementById("answer").value.trim().toUpperCase();
     const result = document.getElementById("result");
     const toPuzzleBtn = document.getElementById("toPuzzleBtn");
 
     if (input === CORRECT_ANSWER) {
-        // 🔐 сохраняем факт прохождения Морзе
         localStorage.setItem("morsePassed", "true");
 
-        result.innerHTML = "✅ Верно! Ты справился с первым испытанием.";
-        toPuzzleBtn.style.display = "block";
+        result.textContent = "✅ Верно! Ты справился с первым испытанием.";
+        toPuzzleBtn.classList.remove("hidden");
     } else {
-        result.innerHTML = "❌ Неверно. Подсказка: это поздравление 😉";
+        result.textContent = "❌ Неверно. Подсказка: это поздравление 😉";
     }
 }
 
@@ -75,7 +73,6 @@ function playMorse() {
         osc.start(start);
         osc.stop(start + duration);
     }
-
     document.getElementById("toPuzzleBtn").addEventListener("click", () => {
         window.location.href = "puzzle/index.html";
     });
