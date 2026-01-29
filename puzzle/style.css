@@ -15,7 +15,7 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     border: 3px solid #6a5acd;
-    touch-action: manipulation;
+    touch-action: none; /* ВАЖНО */
 }
 
 .piece {
@@ -42,18 +42,5 @@ button {
     display: none;
     padding: 15px;
     font-size: 20px;
-}
-
-#hintOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
-    z-index: 999;
-    display: none;
-    pointer-events: none; /* 👈 ВАЖНО */
-}
-
-#hintOverlay.active {
-    display: block;
 }
 
