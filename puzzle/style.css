@@ -4,50 +4,42 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
+    overflow-x: hidden;
 }
 
 #puzzle {
-    width: 92vw;
-    max-width: 600px;
+    width: 94vw;
+    max-width: 520px;
     aspect-ratio: 3 / 2;
-    margin: 20px auto;
-    display: flex;
-    flex-wrap: wrap;
+    margin: 15px auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     border: 3px solid #6a5acd;
-    touch-action: manipulation;
+    touch-action: none; /* ВАЖНО */
 }
 
 .piece {
-    width: 25%;
-    height: 25%;
+    width: 100%;
+    aspect-ratio: 3 / 2;
     background-image: url("image.jpg");
     background-size: 400% 400%;
     border: 1px solid #222;
     box-sizing: border-box;
-    cursor: pointer;
     transition: transform 0.15s, opacity 0.2s;
 }
 
 .piece.selected {
     outline: 3px solid #ffd700;
-    transform: scale(0.95);
+    transform: scale(0.92);
 }
 
-#hintOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
-    z-index: 10;
-    display: none;
-}
-
-#hintOverlay.active {
-    display: block;
+button {
+    font-size: 16px;
+    padding: 8px 14px;
 }
 
 #final {
-    margin-top: 30px;
-    font-size: 22px;
     display: none;
-    padding: 10px;
+    padding: 15px;
+    font-size: 20px;
 }

@@ -18,11 +18,13 @@ const totalPieces = rows * cols;
 const TIME_LIMIT = 300;
 
 let timeLeft = TIME_LIMIT;
-let dragged = null;
 let selectedPiece = null;
 
 const correctOrder = [...Array(totalPieces).keys()];
 let currentOrder = [];
+
+// Проверка: это сенсорное устройство?
+const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
 // Таймер
 timerEl.textContent = "Время: " + timeLeft;
@@ -45,13 +47,16 @@ hintBtn.addEventListener("click", () => {
 
 // Создание пазлов
 let pieces = [];
+
 for (let i = 0; i < totalPieces; i++) {
     const piece = document.createElement("div");
     piece.className = "piece";
-    piece.draggable = true;
+
+    if (!isTouch) piece.draggable = true; // drag только на ПК
 
     const x = i % cols;
     const y = Math.floor(i / cols);
+
     const posX = (x / (cols - 1)) * 100;
     const posY = (y / (rows - 1)) * 100;
 
@@ -68,18 +73,24 @@ pieces.forEach((p, index) => {
     currentOrder[index] = Number(p.dataset.id);
 });
 
-// ПК Drag
-puzzle.addEventListener("dragstart", e => {
-    if (e.target.classList.contains("piece")) dragged = e.target;
-});
-puzzle.addEventListener("dragover", e => e.preventDefault());
-puzzle.addEventListener("drop", e => {
-    if (e.target.classList.contains("piece") && dragged && dragged !== e.target) {
-        swapPieces(dragged, e.target);
-    }
-});
+// === ПК DRAG ===
+if (!isTouch) {
+    let dragged = null;
 
-// 📱 Тап управление
+    puzzle.addEventListener("dragstart", e => {
+        if (e.target.classList.contains("piece")) dragged = e.target;
+    });
+
+    puzzle.addEventListener("dragover", e => e.preventDefault());
+
+    puzzle.addEventListener("drop", e => {
+        if (e.target.classList.contains("piece") && dragged && dragged !== e.target) {
+            swapPieces(dragged, e.target);
+        }
+    });
+}
+
+// === 📱 ТАП ТАП ===
 puzzle.addEventListener("click", e => {
     const piece = e.target.closest(".piece");
     if (!piece || puzzle.style.pointerEvents === "none") return;
@@ -91,7 +102,7 @@ puzzle.addEventListener("click", e => {
     }
 
     if (selectedPiece === piece) {
-        selectedPiece.classList.remove("selected");
+        piece.classList.remove("selected");
         selectedPiece = null;
         return;
     }
