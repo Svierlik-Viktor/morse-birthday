@@ -43,3 +43,18 @@ button {
     padding: 15px;
     font-size: 20px;
 }
+
+#hintBtn {
+    position: fixed;       /* кнопка всегда видна */
+    top: 10px;
+    right: 10px;
+    z-index: 1000;         /* выше всего */
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #6a5acd;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    touch-action: manipulation;
+}
