@@ -48,17 +48,28 @@ button {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
-    z-index: 999;
+    z-index: 999; /* чуть ниже кнопки, чтобы кнопка была кликабельной */
     display: none;
-    pointer-events: none; /* 👈 ВАЖНО */
+    pointer-events: none; /* оверлей не мешает кликам */
 }
+
 
 #hintOverlay.active {
     display: block;
 }
 
 #hintBtn {
+    position: fixed;  /* теперь поверх всех элементов */
+    top: 10px;
+    right: 10px;
+    z-index: 1000;    /* выше всего */
+    padding: 10px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #6a5acd;
+    border: none;
+    border-radius: 6px;
+    color: white;
     touch-action: manipulation;
-    position: relative;
-    z-index: 5;
 }
+
