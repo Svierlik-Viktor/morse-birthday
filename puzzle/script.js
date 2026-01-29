@@ -20,12 +20,17 @@ const cols = 4;
 const totalPieces = rows * cols;
 const TIME_LIMIT = 300;
 
-let timeLeft = TIME_LIMIT;
-let dragged = null;
-
-// размеры
 const pieceWidth = 150;
 const pieceHeight = 100;
+
+let dragged = null;
+let timeLeft = TIME_LIMIT;
+
+// 🧠 МАССИВ "КАК ДОЛЖНО БЫТЬ"
+const correctOrder = [...Array(totalPieces).keys()]; // [0,1,2,...15]
+
+// 🧠 МАССИВ "КАК СЕЙЧАС"
+let currentOrder = [];
 
 // ⏱ Таймер
 timerEl.textContent = "Время: " + timeLeft;
@@ -47,7 +52,7 @@ hintBtn.addEventListener("click", () => {
     setTimeout(() => hintOverlay.classList.remove("active"), 3000);
 });
 
-// 🧩 Создание
+// 🧩 Создание кусочков
 let pieces = [];
 
 for (let i = 0; i < totalPieces; i++) {
@@ -59,21 +64,19 @@ for (let i = 0; i < totalPieces; i++) {
     const y = Math.floor(i / cols);
 
     piece.style.backgroundPosition = `-${x * pieceWidth}px -${y * pieceHeight}px`;
-
-    piece.dataset.correct = i; // какая картинка
-    piece.dataset.current = i; // какая сейчас в ячейке
+    piece.dataset.id = i; // ID фрагмента
 
     pieces.push(piece);
 }
 
-// 🔀 Перемешиваем
+// 🔀 Перемешиваем ID
 pieces.sort(() => Math.random() - 0.5);
 
-// После перемешивания обновляем current!
-pieces.forEach((p, index) => p.dataset.current = index);
-
-// ➕ Вставляем
-pieces.forEach(p => puzzle.appendChild(p));
+// ➕ Добавляем и запоминаем порядок
+pieces.forEach((p, index) => {
+    puzzle.appendChild(p);
+    currentOrder[index] = Number(p.dataset.id);
+});
 
 // 🖱 Drag & Drop
 puzzle.addEventListener("dragstart", e => {
@@ -87,38 +90,42 @@ puzzle.addEventListener("dragover", e => e.preventDefault());
 puzzle.addEventListener("drop", e => {
     if (e.target.classList.contains("piece") && dragged && dragged !== e.target) {
 
-        // меняем картинки
+        const fromIndex = [...puzzle.children].indexOf(dragged);
+        const toIndex = [...puzzle.children].indexOf(e.target);
+
+        // меняем фон
         const tempBg = dragged.style.backgroundPosition;
         dragged.style.backgroundPosition = e.target.style.backgroundPosition;
         e.target.style.backgroundPosition = tempBg;
 
-        // меняем ID фрагментов
-        const tempId = dragged.dataset.correct;
-        dragged.dataset.correct = e.target.dataset.correct;
-        e.target.dataset.correct = tempId;
+        // меняем ID
+        const tempId = dragged.dataset.id;
+        dragged.dataset.id = e.target.dataset.id;
+        e.target.dataset.id = tempId;
+
+        // меняем порядок в массиве
+        const tempOrder = currentOrder[fromIndex];
+        currentOrder[fromIndex] = currentOrder[toIndex];
+        currentOrder[toIndex] = tempOrder;
 
         checkWin();
     }
 });
 
-// 🏆 Проверка победы (ЖЕЛЕЗНАЯ)
+// 🏆 Проверка
 function checkWin() {
-    const pieces = document.querySelectorAll(".piece");
-    let correctCount = 0;
-
-    pieces.forEach((piece, index) => {
-        if (Number(piece.dataset.correct) === index) {
-            correctCount++;
+    for (let i = 0; i < totalPieces; i++) {
+        if (currentOrder[i] !== correctOrder[i]) {
+            return; // хотя бы один не на месте
         }
-    });
-
-    if (correctCount === totalPieces) {
-        clearInterval(timer);
-
-        puzzle.style.display = "none";
-        hintBtn.style.display = "none";
-        timerEl.style.display = "none";
-
-        finalScreen.style.display = "block";
     }
+
+    // если дошли сюда — всё собрано
+    clearInterval(timer);
+
+    puzzle.style.display = "none";
+    hintBtn.style.display = "none";
+    timerEl.style.display = "none";
+
+    finalScreen.style.display = "block";
 }
