@@ -41,8 +41,11 @@ const timer = setInterval(() => {
 
 // Подсказка
 hintBtn.addEventListener("click", () => {
-    hintOverlay.classList.add("active");
-    setTimeout(() => hintOverlay.classList.remove("active"), 3000);
+    hintOverlay.style.display = "block";
+
+    setTimeout(() => {
+        hintOverlay.style.display = "none";
+    }, 3000);
 });
 
 // Создание пазлов
