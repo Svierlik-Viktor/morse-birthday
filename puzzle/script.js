@@ -1,4 +1,4 @@
-// 🔒 Защита: нельзя войти без Морзе
+// 🔒 Защита
 if (localStorage.getItem("morsePassed") !== "true") {
     document.body.innerHTML =
         "<h1 style='text-align:center;color:white;'>⛔ Сначала пройди Морзе</h1>";
@@ -14,20 +14,20 @@ const finalScreen = document.getElementById("final");
 
 finalScreen.style.display = "none";
 
-// 🧩 настройки
+// ⚙ настройки
 const rows = 4;
 const cols = 4;
 const totalPieces = rows * cols;
-const TIME_LIMIT = 300; // 5 минут
+const TIME_LIMIT = 300;
 
 let timeLeft = TIME_LIMIT;
 let dragged = null;
 
-// размеры кусочков (должны совпадать с CSS)
+// размеры
 const pieceWidth = 150;
 const pieceHeight = 100;
 
-// ⏱ Таймер старт
+// ⏱ Таймер
 timerEl.textContent = "Время: " + timeLeft;
 
 const timer = setInterval(() => {
@@ -37,7 +37,7 @@ const timer = setInterval(() => {
     if (timeLeft <= 0) {
         clearInterval(timer);
         result.textContent = "⛔ Время вышло!";
-        puzzle.style.pointerEvents = "none"; // 🔥 БОНУС: блокируем игру
+        puzzle.style.pointerEvents = "none";
     }
 }, 1000);
 
@@ -47,7 +47,7 @@ hintBtn.addEventListener("click", () => {
     setTimeout(() => hintOverlay.classList.remove("active"), 3000);
 });
 
-// 🧩 Создание пазлов
+// 🧩 Создание
 let pieces = [];
 
 for (let i = 0; i < totalPieces; i++) {
@@ -59,7 +59,9 @@ for (let i = 0; i < totalPieces; i++) {
     const y = Math.floor(i / cols);
 
     piece.style.backgroundPosition = `-${x * pieceWidth}px -${y * pieceHeight}px`;
-    piece.dataset.correct = i; // только правильная позиция
+
+    piece.dataset.correct = i; // какая картинка
+    piece.dataset.current = i; // какая сейчас в ячейке
 
     pieces.push(piece);
 }
@@ -67,7 +69,10 @@ for (let i = 0; i < totalPieces; i++) {
 // 🔀 Перемешиваем
 pieces.sort(() => Math.random() - 0.5);
 
-// ➕ Добавляем на поле
+// После перемешивания обновляем current!
+pieces.forEach((p, index) => p.dataset.current = index);
+
+// ➕ Вставляем
 pieces.forEach(p => puzzle.appendChild(p));
 
 // 🖱 Drag & Drop
@@ -82,35 +87,32 @@ puzzle.addEventListener("dragover", e => e.preventDefault());
 puzzle.addEventListener("drop", e => {
     if (e.target.classList.contains("piece") && dragged && dragged !== e.target) {
 
-        const draggedBg = dragged.style.backgroundPosition;
-        const targetBg = e.target.style.backgroundPosition;
+        // меняем картинки
+        const tempBg = dragged.style.backgroundPosition;
+        dragged.style.backgroundPosition = e.target.style.backgroundPosition;
+        e.target.style.backgroundPosition = tempBg;
 
-        // меняем картинку местами
-        dragged.style.backgroundPosition = targetBg;
-        e.target.style.backgroundPosition = draggedBg;
+        // меняем ID фрагментов
+        const tempId = dragged.dataset.correct;
+        dragged.dataset.correct = e.target.dataset.correct;
+        e.target.dataset.correct = tempId;
 
         checkWin();
     }
 });
 
-// ✅ Проверка победы (ПРАВИЛЬНАЯ)
+// 🏆 Проверка победы (ЖЕЛЕЗНАЯ)
 function checkWin() {
     const pieces = document.querySelectorAll(".piece");
-    let correct = 0;
+    let correctCount = 0;
 
     pieces.forEach((piece, index) => {
-
-        const correctX = (index % cols) * pieceWidth;
-        const correctY = Math.floor(index / cols) * pieceHeight;
-
-        const expectedPosition = `-${correctX}px -${correctY}px`;
-
-        if (piece.style.backgroundPosition === expectedPosition) {
-            correct++;
+        if (Number(piece.dataset.correct) === index) {
+            correctCount++;
         }
     });
 
-    if (correct === totalPieces) {
+    if (correctCount === totalPieces) {
         clearInterval(timer);
 
         puzzle.style.display = "none";
