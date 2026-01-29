@@ -45,6 +45,7 @@ button {
 }
 
 #hintBtn {
+    /* position: fixed; */
     top: 10px;
     right: 10px;
     z-index: 1000;         /* выше всего */
@@ -59,6 +60,7 @@ button {
 }
 
 #hintOverlay {
+    position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
     z-index: 999;           /* чуть ниже кнопки */
