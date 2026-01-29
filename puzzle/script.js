@@ -96,7 +96,6 @@ puzzle.addEventListener("drop", e => {
 
     }
 });
-
 // ✅ Проверка победы
 function checkWin() {
     const pieces = document.querySelectorAll(".piece");
