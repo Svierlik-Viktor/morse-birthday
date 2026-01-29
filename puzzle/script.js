@@ -23,6 +23,7 @@ let selectedPiece = null;
 const correctOrder = [...Array(totalPieces).keys()];
 let currentOrder = [];
 
+// Проверка: это сенсорное устройство?
 const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
 // Таймер
@@ -39,7 +40,7 @@ const timer = setInterval(() => {
 }, 1000);
 
 // Подсказка
-hintBtn.addEventListener("pointerdown", () => {
+hintBtn.addEventListener("click", () => {
     hintOverlay.style.display = "block";
 
     setTimeout(() => {
@@ -54,7 +55,7 @@ for (let i = 0; i < totalPieces; i++) {
     const piece = document.createElement("div");
     piece.className = "piece";
 
-    if (!isTouch) piece.draggable = true;
+    if (!isTouch) piece.draggable = true; // drag только на ПК
 
     const x = i % cols;
     const y = Math.floor(i / cols);
@@ -75,7 +76,7 @@ pieces.forEach((p, index) => {
     currentOrder[index] = Number(p.dataset.id);
 });
 
-// ПК Drag
+// === ПК DRAG ===
 if (!isTouch) {
     let dragged = null;
 
@@ -92,7 +93,7 @@ if (!isTouch) {
     });
 }
 
-// Мобильный тап-тап
+// === 📱 ТАП ТАП ===
 puzzle.addEventListener("click", e => {
     const piece = e.target.closest(".piece");
     if (!piece || puzzle.style.pointerEvents === "none") return;

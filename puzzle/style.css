@@ -4,63 +4,28 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
-}
-
-#mainTitle {
-    margin-top: 15px;
-    z-index: 1;
-}
-
-#timer {
-    margin: 10px 0;
-    font-size: 18px;
-}
-
-#hintBtn {
-    position: fixed;       /* кнопка всегда видна */
-    top: 10px;
-    right: 10px;
-    z-index: 1000;         /* выше всего */
-    padding: 10px 16px;
-    font-size: 16px;
-    cursor: pointer;
-    background: #6a5acd;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    touch-action: manipulation;
-}
-
-#hintOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
-    z-index: 999;           /* чуть ниже кнопки */
-    display: none;
-    pointer-events: none;   /* клики проходят сквозь overlay */
+    overflow-x: hidden;
 }
 
 #puzzle {
     width: 94vw;
     max-width: 520px;
     aspect-ratio: 3 / 2;
-    margin: 70px auto 20px auto;  /* отступ сверху чтобы кнопка не перекрывала */
+    margin: 15px auto;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
     border: 3px solid #6a5acd;
     touch-action: manipulation;
 }
 
 .piece {
     width: 100%;
-    height: 100%;
+    aspect-ratio: 3 / 2;
     background-image: url("image.jpg");
     background-size: 400% 400%;
     border: 1px solid #222;
     box-sizing: border-box;
     transition: transform 0.15s, opacity 0.2s;
-    cursor: pointer;
 }
 
 .piece.selected {
@@ -68,8 +33,27 @@ body {
     transform: scale(0.92);
 }
 
+button {
+    font-size: 16px;
+    padding: 8px 14px;
+}
+
 #final {
     display: none;
     padding: 15px;
     font-size: 20px;
 }
+
+#hintOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
+    z-index: 999;
+    display: none;
+    pointer-events: none; /* 👈 ВАЖНО */
+}
+
+#hintOverlay.active {
+    display: block;
+}
+
