@@ -1,137 +1,110 @@
-// ================= НАСТРОЙКИ =================
-const TIME_LIMIT = 180; // ⏳ время на сборку (сек)
-const PUZZLE_SIZE = 3; // 3x3
-const FINAL_IMAGE = "image.jpg"; // картинка пазла
-// ============================================
+// 🔒 Защита: нельзя войти без Морзе
+if (localStorage.getItem("morsePassed") !== "true") {
+    document.body.innerHTML =
+        "<h1 style='text-align:center;color:white;'>⛔ Сначала пройди Морзе</h1>";
+    throw new Error("Access denied");
+}
 
-// Элементы
-const board = document.getElementById("puzzle");
+const puzzle = document.getElementById("puzzle");
+const result = document.getElementById("result");
 const timerEl = document.getElementById("timer");
 const hintBtn = document.getElementById("hintBtn");
 const hintOverlay = document.getElementById("hintOverlay");
-const resultEl = document.getElementById("result");
 const finalScreen = document.getElementById("final");
 
-// 🔒 ЖЁСТКО скрываем подсказку при загрузке
-hintOverlay.classList.add("hidden");
+// гарантированно скрываем финал
+finalScreen.style.display = "none";
 
-// ================= ТАЙМЕР =================
+// 🧩 настройки
+const rows = 4;
+const cols = 4;
+const totalPieces = rows * cols;
+const TIME_LIMIT = 300; // ⏱ 5 минут
+
 let timeLeft = TIME_LIMIT;
+let dragged = null;
+
+// ⏱ начальный вывод таймера
+timerEl.textContent = "Время: " + timeLeft;
+
+// ⏱ Таймер
 const timer = setInterval(() => {
     timeLeft--;
-    timerEl.textContent = `⏱ Осталось: ${timeLeft} сек`;
+    timerEl.textContent = "Время: " + timeLeft;
 
     if (timeLeft <= 0) {
         clearInterval(timer);
-        failPuzzle();
+        result.textContent = "⛔ Время вышло!";
     }
 }, 1000);
 
-// ================= ПАЗЛ =================
-let pieces = [];
-let emptyIndex = PUZZLE_SIZE * PUZZLE_SIZE - 1;
-
-// создаём пазл
-function initPuzzle() {
-    pieces = [];
-    board.innerHTML = "";
-
-    for (let i = 0; i < PUZZLE_SIZE * PUZZLE_SIZE; i++) {
-        const tile = document.createElement("div");
-        tile.className = "tile";
-
-        if (i === emptyIndex) {
-            tile.classList.add("empty");
-        } else {
-            const x = (i % PUZZLE_SIZE) * -100;
-            const y = Math.floor(i / PUZZLE_SIZE) * -100;
-            tile.style.backgroundImage = `url(${FINAL_IMAGE})`;
-            tile.style.backgroundPosition = `${x}% ${y}%`;
-        }
-
-        tile.dataset.index = i;
-        tile.addEventListener("click", () => moveTile(i));
-
-        pieces.push(tile);
-        board.appendChild(tile);
-    }
-
-    shufflePuzzle();
-}
-
-// перемешивание
-function shufflePuzzle() {
-    for (let i = 0; i < 200; i++) {
-        const neighbors = getNeighbors(emptyIndex);
-        const rand = neighbors[Math.floor(Math.random() * neighbors.length)];
-        swap(rand, emptyIndex);
-        emptyIndex = rand;
-    }
-}
-
-// соседние клетки
-function getNeighbors(index) {
-    const neighbors = [];
-    const row = Math.floor(index / PUZZLE_SIZE);
-    const col = index % PUZZLE_SIZE;
-
-    if (row > 0) neighbors.push(index - PUZZLE_SIZE);
-    if (row < PUZZLE_SIZE - 1) neighbors.push(index + PUZZLE_SIZE);
-    if (col > 0) neighbors.push(index - 1);
-    if (col < PUZZLE_SIZE - 1) neighbors.push(index + 1);
-
-    return neighbors;
-}
-
-// ход
-function moveTile(index) {
-    if (!getNeighbors(emptyIndex).includes(index)) return;
-
-    swap(index, emptyIndex);
-    emptyIndex = index;
-
-    if (checkWin()) winPuzzle();
-}
-
-// swap
-function swap(i, j) {
-    [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
-    board.insertBefore(pieces[i], board.children[i]);
-    board.insertBefore(pieces[j], board.children[j]);
-}
-
-// ================= ПРОВЕРКА =================
-function checkWin() {
-    return pieces.every((tile, index) => {
-        if (tile.classList.contains("empty")) return index === emptyIndex;
-        return parseInt(tile.dataset.index) === index;
-    });
-}
-
-// ================= ПОДСКАЗКА =================
+// 👁 Подсказка
 hintBtn.addEventListener("click", () => {
-    hintOverlay.classList.remove("hidden");
+    hintOverlay.classList.add("active");
 
     setTimeout(() => {
-        hintOverlay.classList.add("hidden");
+        hintOverlay.classList.remove("active");
     }, 3000);
 });
 
-// ================= ФИНАЛ =================
-function winPuzzle() {
-    clearInterval(timer);
-    resultEl.textContent = "🎉 Пазл собран правильно!";
-    setTimeout(showFinal, 1200);
+// 🧩 Создание пазлов
+let pieces = [];
+
+for (let i = 0; i < totalPieces; i++) {
+    const piece = document.createElement("div");
+    piece.className = "piece";
+    piece.draggable = true;
+
+    const x = i % cols;
+    const y = Math.floor(i / cols);
+
+    piece.style.backgroundPosition = `-${x * 150}px -${y * 100}px`;
+    piece.dataset.correct = i;
+
+    pieces.push(piece);
 }
 
-function failPuzzle() {
-    resultEl.textContent = "⛔ Время вышло. Попробуй ещё раз 😉";
-}
+// 🔀 Перемешиваем
+pieces.sort(() => Math.random() - 0.5);
 
-function showFinal() {
-    document.getElementById("game").classList.add("hidden");
-    finalScreen.classList.remove("hidden");
-}
+// ➕ Добавляем на поле
+pieces.forEach(p => puzzle.appendChild(p));
 
-// старт
-initPuzzle();
+// 🖱 Drag & Drop
+puzzle.addEventListener("dragstart", e => {
+    if (e.target.classList.contains("piece")) {
+        dragged = e.target;
+    }
+});
+
+puzzle.addEventListener("dragover", e => e.preventDefault());
+
+puzzle.addEventListener("drop", e => {
+    if (e.target.classList.contains("piece") && dragged) {
+        const temp = dragged.style.backgroundPosition;
+        dragged.style.backgroundPosition = e.target.style.backgroundPosition;
+        e.target.style.backgroundPosition = temp;
+
+        checkWin();
+    }
+});
+
+// ✅ Проверка победы
+function checkWin() {
+    const pieces = document.querySelectorAll(".piece");
+    let correct = 0;
+
+    pieces.forEach((p, i) => {
+        if (p.dataset.correct == i) correct++;
+    });
+
+    if (correct === totalPieces) {
+        clearInterval(timer);
+
+        puzzle.style.display = "none";
+        hintBtn.style.display = "none";
+        timerEl.style.display = "none";
+
+        finalScreen.style.display = "block";
+    }
+}
