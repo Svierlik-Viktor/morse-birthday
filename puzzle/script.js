@@ -60,116 +60,72 @@ for (let i = 0; i < totalPieces; i++) {
     piece.className = "piece";
     piece.draggable = true;
 
-    const x = (i % cols) * pieceWidth;  // ИСПРАВЛЕНО: умножаем на ширину
-    const y = Math.floor(i / cols) * pieceHeight; // ИСПРАВЛЕНО: умножаем на высоту
+    const x = i % cols;
+    const y = Math.floor(i / cols);
 
-    piece.style.backgroundPosition = `-${x}px -${y}px`;
-    piece.dataset.id = i; // ID фрагмента (правильная позиция)
+    piece.style.backgroundPosition = `-${x * pieceWidth}px -${y * pieceHeight}px`;
+    piece.dataset.id = i; // ID фрагмента
 
     pieces.push(piece);
 }
 
-// 🔀 Перемешиваем кусочки в DOM (физически меняем порядок)
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
+// 🔀 Перемешиваем ID
+pieces.sort(() => Math.random() - 0.5);
 
-// Перемешиваем и добавляем в DOM
-pieces = shuffleArray(pieces);
-pieces.forEach((piece, index) => {
-    puzzle.appendChild(piece);
-    currentOrder[index] = parseInt(piece.dataset.id); // Запоминаем текущий порядок
+// ➕ Добавляем и запоминаем порядок
+pieces.forEach((p, index) => {
+    puzzle.appendChild(p);
+    currentOrder[index] = Number(p.dataset.id);
 });
 
-// 🖱 Drag & Drop (оригинальная логика)
+// 🖱 Drag & Drop
 puzzle.addEventListener("dragstart", e => {
     if (e.target.classList.contains("piece")) {
         dragged = e.target;
-        // Добавляем класс для визуального эффекта
-        dragged.classList.add("dragging");
     }
 });
 
-puzzle.addEventListener("dragend", e => {
-    if (e.target.classList.contains("piece")) {
-        e.target.classList.remove("dragging");
-    }
-    dragged = null;
-});
-
-puzzle.addEventListener("dragover", e => {
-    e.preventDefault();
-});
+puzzle.addEventListener("dragover", e => e.preventDefault());
 
 puzzle.addEventListener("drop", e => {
-    e.preventDefault();
+    if (e.target.classList.contains("piece") && dragged && dragged !== e.target) {
 
-    if (!dragged || !e.target.classList.contains("piece") || dragged === e.target) {
-        return;
+        const fromIndex = [...puzzle.children].indexOf(dragged);
+        const toIndex = [...puzzle.children].indexOf(e.target);
+
+        // меняем фон
+        const tempBg = dragged.style.backgroundPosition;
+        dragged.style.backgroundPosition = e.target.style.backgroundPosition;
+        e.target.style.backgroundPosition = tempBg;
+
+        // меняем ID
+        const tempId = dragged.dataset.id;
+        dragged.dataset.id = e.target.dataset.id;
+        e.target.dataset.id = tempId;
+
+        // меняем порядок в массиве
+        const tempOrder = currentOrder[fromIndex];
+        currentOrder[fromIndex] = currentOrder[toIndex];
+        currentOrder[toIndex] = tempOrder;
+
+        checkWin();
     }
-
-    // Получаем индексы элементов
-    const draggedIndex = Array.from(puzzle.children).indexOf(dragged);
-    const targetIndex = Array.from(puzzle.children).indexOf(e.target);
-
-    // Меняем элементы местами в DOM
-    if (draggedIndex < targetIndex) {
-        e.target.after(dragged);
-    } else {
-        e.target.before(dragged);
-    }
-
-    // Обновляем currentOrder после перестановки
-    updateCurrentOrder();
-
-    // Проверяем, выиграл ли игрок
-    checkWin();
 });
 
-// Функция для обновления currentOrder
-function updateCurrentOrder() {
-    currentOrder = [];
-    Array.from(puzzle.children).forEach((piece, index) => {
-        currentOrder[index] = parseInt(piece.dataset.id);
-    });
-}
-
-// 🏆 Проверка (оригинальная логика)
+// 🏆 Проверка
 function checkWin() {
-    // Проверяем, совпадает ли currentOrder с correctOrder
-    let isWin = true;
     for (let i = 0; i < totalPieces; i++) {
         if (currentOrder[i] !== correctOrder[i]) {
-            isWin = false;
-            break;
+            return; // хотя бы один не на месте
         }
     }
 
-    if (isWin) {
-        clearInterval(timer);
+    // если дошли сюда — всё собрано
+    clearInterval(timer);
 
-        puzzle.style.display = "none";
-        hintBtn.style.display = "none";
-        timerEl.style.display = "none";
-        result.style.display = "none";
+    puzzle.style.display = "none";
+    hintBtn.style.display = "none";
+    timerEl.style.display = "none";
 
-        finalScreen.style.display = "block";
-
-        // Сохраняем прогресс
-        localStorage.setItem("puzzlePassed", "true");
-    }
+    finalScreen.style.display = "block";
 }
-
-// Добавим в CSS стиль для перетаскиваемого элемента
-const style = document.createElement('style');
-style.textContent = `
-    .piece.dragging {
-        opacity: 0.5;
-        cursor: grabbing;
-    }
-`;
-document.head.appendChild(style);
