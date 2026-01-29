@@ -5,6 +5,7 @@ if (localStorage.getItem("morsePassed") !== "true") {
     throw new Error("Access denied");
 }
 
+const mainTitle = document.getElementById("mainTitle");
 const puzzle = document.getElementById("puzzle");
 const result = document.getElementById("result");
 const timerEl = document.getElementById("timer");
@@ -116,16 +117,17 @@ puzzle.addEventListener("drop", e => {
 function checkWin() {
     for (let i = 0; i < totalPieces; i++) {
         if (currentOrder[i] !== correctOrder[i]) {
-            return; // хотя бы один не на месте
+            return;
         }
     }
 
-    // если дошли сюда — всё собрано
     clearInterval(timer);
 
     puzzle.style.display = "none";
     hintBtn.style.display = "none";
     timerEl.style.display = "none";
+    mainTitle.style.display = "none";
 
     finalScreen.style.display = "block";
 }
+
