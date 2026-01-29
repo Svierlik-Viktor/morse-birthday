@@ -59,7 +59,8 @@ for (let i = 0; i < totalPieces; i++) {
     const y = Math.floor(i / cols);
 
     piece.style.backgroundPosition = `-${x * 150}px -${y * 100}px`;
-    piece.dataset.correct = i;
+    piece.dataset.correctPos = `-${x * 150}px -${y * 100}px`;
+    piece.style.backgroundPosition = piece.dataset.correctPos;
 
     pieces.push(piece);
 }
@@ -94,8 +95,10 @@ function checkWin() {
     const pieces = document.querySelectorAll(".piece");
     let correct = 0;
 
-    pieces.forEach((p, i) => {
-        if (p.dataset.correct == i) correct++;
+    pieces.forEach(p => {
+        if (p.style.backgroundPosition === p.dataset.correctPos) {
+            correct++;
+        }
     });
 
     if (correct === totalPieces) {
@@ -108,3 +111,4 @@ function checkWin() {
         finalScreen.style.display = "block";
     }
 }
+
