@@ -45,7 +45,6 @@ button {
 }
 
 #hintBtn {
-    position: fixed;       /* кнопка всегда видна */
     top: 10px;
     right: 10px;
     z-index: 1000;         /* выше всего */
