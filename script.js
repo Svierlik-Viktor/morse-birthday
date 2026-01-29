@@ -29,7 +29,7 @@ function checkAnswer() {
         localStorage.setItem("morsePassed", "true");
 
         result.textContent = "✅ Верно! Ты справился с первым испытанием.";
-        toPuzzleBtn.style.display = "inline-block";
+        toPuzzleBtn.classList.remove("hidden");
     } else {
         result.textContent = "❌ Неверно. Подсказка: это поздравление 😉";
     }
