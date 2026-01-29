@@ -3,30 +3,34 @@ body {
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
 }
 
 #puzzle {
-    width: 600px;
-    height: 400px;
+    width: 92vw;
+    max-width: 600px;
+    aspect-ratio: 3 / 2;
     margin: 20px auto;
     display: flex;
     flex-wrap: wrap;
     border: 3px solid #6a5acd;
+    touch-action: manipulation;
 }
 
 .piece {
-    width: 150px;
-    height: 100px;
+    width: 25%;
+    height: 25%;
     background-image: url("image.jpg");
-    background-size: 600px 400px;
-    cursor: grab;
+    background-size: 400% 400%;
     border: 1px solid #222;
     box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.2s;
 }
 
-#result {
-    font-size: 22px;
-    margin-top: 20px;
+.piece.selected {
+    outline: 3px solid #ffd700;
+    transform: scale(0.95);
 }
 
 #hintOverlay {
@@ -43,19 +47,7 @@ body {
 
 #final {
     margin-top: 30px;
-    font-size: 26px;
+    font-size: 22px;
     display: none;
-}
-
-.piece {
-    transition: opacity 0.2s;
-}
-
-.piece.dragging {
-    opacity: 0.5;
-    cursor: grabbing;
-}
-
-#puzzle {
-    position: relative;
+    padding: 10px;
 }
