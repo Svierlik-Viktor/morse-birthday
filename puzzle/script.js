@@ -60,6 +60,7 @@ for (let i = 0; i < totalPieces; i++) {
 
     piece.style.backgroundPosition = `-${x * 150}px -${y * 100}px`;
     piece.dataset.correct = i;
+    piece.dataset.current = i;
 
     pieces.push(piece);
 }
@@ -81,11 +82,18 @@ puzzle.addEventListener("dragover", e => e.preventDefault());
 
 puzzle.addEventListener("drop", e => {
     if (e.target.classList.contains("piece") && dragged) {
-        const temp = dragged.style.backgroundPosition;
+        // меняем фон
+        const tempBg = dragged.style.backgroundPosition;
         dragged.style.backgroundPosition = e.target.style.backgroundPosition;
-        e.target.style.backgroundPosition = temp;
+        e.target.style.backgroundPosition = tempBg;
+
+// меняем текущие позиции
+        const tempCurrent = dragged.dataset.current;
+        dragged.dataset.current = e.target.dataset.current;
+        e.target.dataset.current = tempCurrent;
 
         checkWin();
+
     }
 });
 
@@ -94,8 +102,10 @@ function checkWin() {
     const pieces = document.querySelectorAll(".piece");
     let correct = 0;
 
-    pieces.forEach((p, i) => {
-        if (p.dataset.correct == i) correct++;
+    pieces.forEach(p => {
+        if (p.dataset.correct === p.dataset.current) {
+            correct++;
+        }
     });
 
     if (correct === totalPieces) {
@@ -108,3 +118,4 @@ function checkWin() {
         finalScreen.style.display = "block";
     }
 }
+
