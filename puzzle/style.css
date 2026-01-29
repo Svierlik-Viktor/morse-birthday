@@ -28,3 +28,19 @@ body {
     font-size: 22px;
     margin-top: 20px;
 }
+
+#hintOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9) url("image.jpg") center/contain no-repeat;
+    z-index: 10;
+}
+
+.hidden {
+    display: none;
+}
+
+#final {
+    margin-top: 30px;
+    font-size: 26px;
+}

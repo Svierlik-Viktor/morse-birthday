@@ -1,22 +1,23 @@
-// 🔐 Проверка прохождения Морзе
+// 🔒 Защита: нельзя без Морзе
 if (localStorage.getItem("morsePassed") !== "true") {
-    document.body.innerHTML = `
-        <h1 style="text-align:center;margin-top:40vh;">
-            ⛔ Сначала пройди предыдущее испытание
-        </h1>
-    `;
+    document.body.innerHTML = "<h1 style='text-align:center;color:white;'>⛔ Сначала пройди Морзе</h1>";
     throw new Error("Access denied");
 }
 
 const puzzle = document.getElementById("puzzle");
 const result = document.getElementById("result");
 const timerEl = document.getElementById("timer");
+const hintBtn = document.getElementById("hintBtn");
+const hintOverlay = document.getElementById("hintOverlay");
+const finalScreen = document.getElementById("final");
 
+// 🧩 настройки
 const rows = 4;
 const cols = 4;
 const totalPieces = rows * cols;
+const TIME_LIMIT = 300; // ⏱ 5 минут
 
-let timeLeft = 60;
+let timeLeft = TIME_LIMIT;
 let dragged = null;
 
 // ⏱ Таймер
@@ -29,6 +30,15 @@ const timer = setInterval(() => {
         result.textContent = "⛔ Время вышло!";
     }
 }, 1000);
+
+// 👁 Подсказка
+hintBtn.addEventListener("click", () => {
+    hintOverlay.classList.remove("hidden");
+
+    setTimeout(() => {
+        hintOverlay.classList.add("hidden");
+    }, 3000); // 3 секунды
+});
 
 // 🧩 Создание пазлов
 let pieces = [];
@@ -50,7 +60,7 @@ for (let i = 0; i < totalPieces; i++) {
 // 🔀 Перемешиваем
 pieces.sort(() => Math.random() - 0.5);
 
-// ➕ Добавляем на поле
+// ➕ Добавляем
 pieces.forEach(p => puzzle.appendChild(p));
 
 // 🖱 Drag & Drop
@@ -61,10 +71,10 @@ puzzle.addEventListener("dragstart", e => {
 puzzle.addEventListener("dragover", e => e.preventDefault());
 
 puzzle.addEventListener("drop", e => {
-    if (e.target.className === "piece") {
-        const temp = dragged.style.backgroundPosition;
+    if (e.target.classList.contains("piece")) {
+        const tempPos = dragged.style.backgroundPosition;
         dragged.style.backgroundPosition = e.target.style.backgroundPosition;
-        e.target.style.backgroundPosition = temp;
+        e.target.style.backgroundPosition = tempPos;
 
         checkWin();
     }
@@ -81,6 +91,10 @@ function checkWin() {
 
     if (correct === totalPieces) {
         clearInterval(timer);
-        result.textContent = "🎉 Пазл собран! Ты справилась!";
+        puzzle.style.display = "none";
+        hintBtn.style.display = "none";
+        timerEl.style.display = "none";
+
+        finalScreen.classList.remove("hidden");
     }
 }
