@@ -96,13 +96,14 @@ puzzle.addEventListener("drop", e => {
 
     }
 });
+
 // ✅ Проверка победы
 function checkWin() {
     const pieces = document.querySelectorAll(".piece");
     let correct = 0;
 
     pieces.forEach(p => {
-        if (p.dataset.correct === p.dataset.current) {
+        if (Number(p.dataset.correct) === Number(p.dataset.current)) {
             correct++;
         }
     });
@@ -117,4 +118,5 @@ function checkWin() {
         finalScreen.style.display = "block";
     }
 }
+
 
