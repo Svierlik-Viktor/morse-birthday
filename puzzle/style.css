@@ -32,15 +32,17 @@ body {
 #hintOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.9) url("image.jpg") center/contain no-repeat;
+    background: rgba(0,0,0,0.95) url("image.jpg") center/contain no-repeat;
     z-index: 10;
+    display: none;
 }
 
-.hidden {
-    display: none;
+#hintOverlay.active {
+    display: block;
 }
 
 #final {
     margin-top: 30px;
     font-size: 26px;
+    display: none;
 }

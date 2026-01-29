@@ -1,6 +1,7 @@
-// 🔒 Защита: нельзя без Морзе
+// 🔒 Защита: нельзя войти без Морзе
 if (localStorage.getItem("morsePassed") !== "true") {
-    document.body.innerHTML = "<h1 style='text-align:center;color:white;'>⛔ Сначала пройди Морзе</h1>";
+    document.body.innerHTML =
+        "<h1 style='text-align:center;color:white;'>⛔ Сначала пройди Морзе</h1>";
     throw new Error("Access denied");
 }
 
@@ -11,6 +12,9 @@ const hintBtn = document.getElementById("hintBtn");
 const hintOverlay = document.getElementById("hintOverlay");
 const finalScreen = document.getElementById("final");
 
+// гарантированно скрываем финал
+finalScreen.style.display = "none";
+
 // 🧩 настройки
 const rows = 4;
 const cols = 4;
@@ -19,6 +23,9 @@ const TIME_LIMIT = 300; // ⏱ 5 минут
 
 let timeLeft = TIME_LIMIT;
 let dragged = null;
+
+// ⏱ начальный вывод таймера
+timerEl.textContent = "Время: " + timeLeft;
 
 // ⏱ Таймер
 const timer = setInterval(() => {
@@ -33,11 +40,11 @@ const timer = setInterval(() => {
 
 // 👁 Подсказка
 hintBtn.addEventListener("click", () => {
-    hintOverlay.classList.remove("hidden");
+    hintOverlay.classList.add("active");
 
     setTimeout(() => {
-        hintOverlay.classList.add("hidden");
-    }, 3000); // 3 секунды
+        hintOverlay.classList.remove("active");
+    }, 3000);
 });
 
 // 🧩 Создание пазлов
@@ -60,21 +67,23 @@ for (let i = 0; i < totalPieces; i++) {
 // 🔀 Перемешиваем
 pieces.sort(() => Math.random() - 0.5);
 
-// ➕ Добавляем
+// ➕ Добавляем на поле
 pieces.forEach(p => puzzle.appendChild(p));
 
 // 🖱 Drag & Drop
 puzzle.addEventListener("dragstart", e => {
-    dragged = e.target;
+    if (e.target.classList.contains("piece")) {
+        dragged = e.target;
+    }
 });
 
 puzzle.addEventListener("dragover", e => e.preventDefault());
 
 puzzle.addEventListener("drop", e => {
-    if (e.target.classList.contains("piece")) {
-        const tempPos = dragged.style.backgroundPosition;
+    if (e.target.classList.contains("piece") && dragged) {
+        const temp = dragged.style.backgroundPosition;
         dragged.style.backgroundPosition = e.target.style.backgroundPosition;
-        e.target.style.backgroundPosition = tempPos;
+        e.target.style.backgroundPosition = temp;
 
         checkWin();
     }
@@ -91,10 +100,11 @@ function checkWin() {
 
     if (correct === totalPieces) {
         clearInterval(timer);
+
         puzzle.style.display = "none";
         hintBtn.style.display = "none";
         timerEl.style.display = "none";
 
-        finalScreen.classList.remove("hidden");
+        finalScreen.style.display = "block";
     }
 }
