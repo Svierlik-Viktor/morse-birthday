@@ -56,3 +56,9 @@ button {
 #hintOverlay.active {
     display: block;
 }
+
+#hintBtn {
+    touch-action: manipulation;
+    position: relative;
+    z-index: 5;
+}

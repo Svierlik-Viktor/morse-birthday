@@ -40,13 +40,16 @@ const timer = setInterval(() => {
 }, 1000);
 
 // Подсказка
-hintBtn.addEventListener("click", () => {
+function showHint() {
     hintOverlay.style.display = "block";
 
     setTimeout(() => {
         hintOverlay.style.display = "none";
     }, 3000);
-});
+}
+
+// работает и на ПК, и на телефоне
+hintBtn.addEventListener("pointerdown", showHint);
 
 // Создание пазлов
 let pieces = [];
