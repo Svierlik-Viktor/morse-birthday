@@ -60,72 +60,151 @@ for (let i = 0; i < totalPieces; i++) {
     piece.className = "piece";
     piece.draggable = true;
 
-    const x = i % cols;
-    const y = Math.floor(i / cols);
+    // УКАЗЫВАЕМ ПРАВИЛЬНУЮ ПОЗИЦИЮ ФОНА ДЛЯ КАЖДОЙ ЧАСТИ
+    // Это позиция в исходном неразрезанном изображении
+    const x = (i % cols) * pieceWidth;  // исправлено: умножаем на ширину
+    const y = Math.floor(i / cols) * pieceHeight; // исправлено: умножаем на высоту
 
-    piece.style.backgroundPosition = `-${x * pieceWidth}px -${y * pieceHeight}px`;
-    piece.dataset.id = i; // ID фрагмента
+    piece.style.backgroundPosition = `-${x}px -${y}px`;
+    piece.dataset.correctId = i; // ИСПРАВЛЕНО: сохраняем правильный ID
+    piece.dataset.currentId = i; // и текущий ID
 
     pieces.push(piece);
 }
 
-// 🔀 Перемешиваем ID
-pieces.sort(() => Math.random() - 0.5);
+// 🔀 Перемешиваем физически, меняя их местами в DOM
+function shufflePieces() {
+    // Создаем массив индексов и перемешиваем его
+    const shuffledIndices = [...Array(totalPieces).keys()];
+    for (let i = shuffledIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+    }
 
-// ➕ Добавляем и запоминаем порядок
-pieces.forEach((p, index) => {
-    puzzle.appendChild(p);
-    currentOrder[index] = Number(p.dataset.id);
-});
+    // Очищаем контейнер
+    puzzle.innerHTML = '';
 
-// 🖱 Drag & Drop
-puzzle.addEventListener("dragstart", e => {
-    if (e.target.classList.contains("piece")) {
+    // Добавляем части в перемешанном порядке
+    shuffledIndices.forEach(index => {
+        puzzle.appendChild(pieces[index]);
+        // Обновляем currentId на тот, который сейчас в этой позиции
+        pieces[index].dataset.currentId = index;
+    });
+
+    // Обновляем currentOrder
+    updateCurrentOrder();
+}
+
+// Обновляем массив текущего порядка
+function updateCurrentOrder() {
+    currentOrder = [];
+    Array.from(puzzle.children).forEach((piece, index) => {
+        currentOrder[index] = parseInt(piece.dataset.correctId);
+    });
+}
+
+// Инициализируем пазл
+shufflePieces();
+
+// 🖱 Drag & Drop - УПРОЩЕННАЯ ВЕРСИЯ
+puzzle.addEventListener('dragstart', (e) => {
+    if (e.target.classList.contains('piece')) {
         dragged = e.target;
+        // Добавляем небольшой таймаут для корректной работы
+        setTimeout(() => {
+            e.target.style.opacity = '0.4';
+        }, 0);
     }
 });
 
-puzzle.addEventListener("dragover", e => e.preventDefault());
-
-puzzle.addEventListener("drop", e => {
-    if (e.target.classList.contains("piece") && dragged && dragged !== e.target) {
-
-        const fromIndex = [...puzzle.children].indexOf(dragged);
-        const toIndex = [...puzzle.children].indexOf(e.target);
-
-        // меняем фон
-        const tempBg = dragged.style.backgroundPosition;
-        dragged.style.backgroundPosition = e.target.style.backgroundPosition;
-        e.target.style.backgroundPosition = tempBg;
-
-        // меняем ID
-        const tempId = dragged.dataset.id;
-        dragged.dataset.id = e.target.dataset.id;
-        e.target.dataset.id = tempId;
-
-        // меняем порядок в массиве
-        const tempOrder = currentOrder[fromIndex];
-        currentOrder[fromIndex] = currentOrder[toIndex];
-        currentOrder[toIndex] = tempOrder;
-
-        checkWin();
+puzzle.addEventListener('dragend', (e) => {
+    if (e.target.classList.contains('piece')) {
+        e.target.style.opacity = '1';
     }
 });
 
-// 🏆 Проверка
+puzzle.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    // Добавляем визуальную подсказку
+    const afterElement = getDragAfterElement(puzzle, e.clientY);
+    const draggable = dragged;
+
+    if (afterElement == null) {
+        puzzle.appendChild(draggable);
+    } else {
+        puzzle.insertBefore(draggable, afterElement);
+    }
+
+    // Обновляем порядок после перетаскивания
+    updateCurrentOrder();
+    checkWin();
+});
+
+// Вспомогательная функция для определения позиции вставки
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.piece:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+// 🏆 Проверка - УПРОЩЕННАЯ ВЕРСИЯ
 function checkWin() {
-    for (let i = 0; i < totalPieces; i++) {
-        if (currentOrder[i] !== correctOrder[i]) {
-            return; // хотя бы один не на месте
+    const children = Array.from(puzzle.children);
+    let allCorrect = true;
+
+    for (let i = 0; i < children.length; i++) {
+        const correctId = parseInt(children[i].dataset.correctId);
+        if (correctId !== i) {
+            allCorrect = false;
+            break;
         }
     }
 
-    // если дошли сюда — всё собрано
-    clearInterval(timer);
+    if (allCorrect) {
+        clearInterval(timer);
+        puzzle.style.display = "none";
+        hintBtn.style.display = "none";
+        timerEl.style.display = "none";
+        result.style.display = "none";
+        finalScreen.style.display = "block";
 
-    puzzle.style.display = "none";
-    hintBtn.style.display = "none";
-    timerEl.style.display = "none";
+        // Сохраняем прогресс
+        localStorage.setItem("puzzlePassed", "true");
+    }
+}
 
-    finalScreen.style.display = "block";
+// Альтернативный вариант проверки (можно выбрать любой)
+function checkWinAlternative() {
+    let isCorrect = true;
+
+    for (let i = 0; i < totalPieces; i++) {
+        const piece = puzzle.children[i];
+        const correctId = parseInt(piece.dataset.correctId);
+
+        if (correctId !== i) {
+            isCorrect = false;
+            break;
+        }
+    }
+
+    if (isCorrect) {
+        clearInterval(timer);
+        puzzle.style.display = "none";
+        hintBtn.style.display = "none";
+        timerEl.style.display = "none";
+        result.style.display = "none";
+        finalScreen.style.display = "block";
+
+        // Сохраняем прогресс
+        localStorage.setItem("puzzlePassed", "true");
+    }
 }
